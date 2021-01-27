@@ -31,8 +31,9 @@ def print(students)
     else
       mkultra_volunteer = "will not participate"
     end
-    puts "#{i+1}. #{student[:name].underline} is a nember of the #{student[:cohort].to_s.underline} cohort. He is #{student[:tallness].underline} high, 
+    out = "#{i+1}. #{student[:name].underline} is a nember of the #{student[:cohort].to_s.underline} cohort. He is #{student[:tallness].underline} high, 
           does #{student[:hobby].underline} for fun, and #{mkultra_volunteer.underline} in this faculties MKULTRA program"
+    puts out.center(out.length + 50)
     i += 1
   end
 end
