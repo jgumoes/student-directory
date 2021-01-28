@@ -23,7 +23,7 @@ class String
 end
 
 # default list of students, to make testing some stuff less painfull
-students = [{name: "Bob", cohort: "october", hobby: "hobbying along", 
+$default_students = [{name: "Bob", cohort: "october", hobby: "hobbying along", 
   tallness: "about this big", mkultra: "definitely not"},
 {name: "Freddy the Murder Enthusiast", cohort: "June", hobby: "murdering", 
   tallness: "5 foot 7", mkultra: "nope"},
@@ -118,10 +118,39 @@ def input_students
   students
 end
 
-#nothing happens until we call the methods
-students = input_students
-#print(students)
-if students.size > 0
-  print_header
-  print_cohort(students)
+def interactive_menu
+  students = []
+  loop do
+    # show the menu options
+    puts "1. Input the students"
+    puts "2. Show the students"
+    puts "5. Show the defualt students"
+    puts "9. Exit"
+    selection = gets.chomp.delete "a-zA-Z "
+    puts "\n++++++++++++++++\n\n"
+    case selection
+    when "1"
+      students = input_students
+    when "2"
+      print_header
+      print_cohort(students)
+    when "5"
+      print_cohort($default_students)
+    when "9"
+      exit
+    else
+      puts "I don't think that was one of the options..."
+    end
+    puts "\n++++++++++++++++\n\n"
+  end
 end
+
+interactive_menu
+
+# #nothing happens until we call the methods
+# students = input_students
+# #print(students)
+# if students.size > 0
+#   print_header
+#   print_cohort(students)
+# end
