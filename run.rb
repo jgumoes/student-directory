@@ -1,3 +1,5 @@
+# this script was supposed to run directory.rb and enter students automatically to speed up testing.
+# unfortunately, it does not actually work.
 
 students = [{name: "Bob", cohort: "october", hobby: "hobbying along", 
                 tallness: "about this big", mkultra: "definitely not"},
