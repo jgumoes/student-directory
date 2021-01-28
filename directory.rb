@@ -120,6 +120,8 @@ end
 
 #nothing happens until we call the methods
 students = input_students
-print_header
 #print(students)
-print_cohort(students)
+if students.size > 0
+  print_header
+  print_cohort(students)
+end
