@@ -15,6 +15,11 @@ class String
       return self
     end
   end
+
+  def trim
+    # identical to chomp()
+    return self.delete("\n\r")
+  end
 end
 
 # default list of students, to make testing some stuff less painfull
@@ -88,18 +93,18 @@ def input_students
   # create an empty array
   students = []
   # get the first name
-  name = gets.chomp
+  name = gets.trim
   # while the name is not empty, repeat this code
   while !name.empty? do
     puts "Which cohort does #{name} belong to?"
-    cohort = gets.chomp.capitalize
+    cohort = gets.trim.capitalize
     if cohort.empty? then cohort = "November" end
     puts "What does #{name} like to do for fun?"
-    hobby = gets.chomp
+    hobby = gets.trim
     puts "How tall is #{name}?"
-    tallness = gets.chomp
+    tallness = gets.trim
     puts "Would #{name} like to volunteer as a subject in evil experiments?"
-    mkultra = gets.chomp
+    mkultra = gets.trim
     mkultra = true
     # add the student hash to the array
     students << {name: name, cohort: cohort.to_sym, hobby: hobby, tallness: tallness, mkultra: mkultra}
@@ -107,7 +112,7 @@ def input_students
     if students.count != 1 then s = "s" end
     puts "Now we have #{students.count} student#{s}"
     # get another name from the user
-    name = gets.chomp
+    name = gets.trim
   end
   # return the array of students
   students
