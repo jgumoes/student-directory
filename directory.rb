@@ -57,7 +57,7 @@ end
 def print_cohort(students)
   cohorts = students.map { |s| s[:cohort] }
   cohorts.each do |cohort|
-    puts "Students in the #{cohort.underline} cohort:"
+    puts "Students in the #{cohort.to_s.underline} cohort:"
     i = 0
     students.each do |student|
       if student[:cohort] == cohort
@@ -103,7 +103,9 @@ def input_students
     mkultra = true
     # add the student hash to the array
     students << {name: name, cohort: cohort.to_sym, hobby: hobby, tallness: tallness, mkultra: mkultra}
-    puts "Now we have #{students.count} students"
+    s = ""
+    if students.count != 1 then s = "s" end
+    puts "Now we have #{students.count} student#{s}"
     # get another name from the user
     name = gets.chomp
   end
@@ -112,7 +114,7 @@ def input_students
 end
 
 #nothing happens until we call the methods
-#students = input_students
+students = input_students
 print_header
 #print(students)
 print_cohort(students)
