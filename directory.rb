@@ -86,7 +86,8 @@ end
 def print_menu
   puts "1. Input the students"
   puts "2. Show the students"
-  puts "3. Save the students"
+  puts "3. Save the students to students.csv"
+  puts "4. Load students from students.csv"
   puts "5. Add the defualt students"
   puts "9. Exit"
 end
@@ -123,6 +124,8 @@ def process(selection)
       print_cohort()
     when "3"
       save_students()
+    when "4"
+      load_students()
     when "5"
       add_default_students()
     when "9"
@@ -139,16 +142,39 @@ def show_students
   print_footer()
 end
 
-def save_students
-  # open the students file for writing
-  file = File.open("students.csv", "w")
-  @students.each do |student|
-    student_data = student.values # this is safe because hashes keep their values in the same order as inserted
-    csv_line = student_data.join(",")
-    file.puts csv_line
+def load_students
+  file = File.open("students.csv", "r")
+  keys = file.readline.chomp.split(",").map { |k| k.to_sym }
+  i_cohort = keys.index(:cohort)
+  file.readlines.each do |line|
+    line = line.chomp.split(",")
+    line[i_cohort] = line[i_cohort].to_sym
+    h = {}
+    keys.each_with_index { |k, i| h[k] = line[i]}
+    @students << h
   end
   file.close
-  puts "Saved the students"
+  puts "Loaded students from students.csv"
+end
+
+
+def save_students
+  if @students.length == 0
+    puts "Their aren't any students to save"
+  else
+    # open the students file for writing
+    file = File.open("students.csv", "w")
+    # save keys to first line of file. this makes it easier to scale up what
+    # data is stored for each student
+    file.puts @students[0].keys.map { |k| k.to_s }.join(",")
+    @students.each do |student|
+      student_data = student.values # this is safe because hashes keep their values in the same order as inserted
+      csv_line = student_data.join(",")
+      file.puts csv_line
+    end
+    file.close
+    puts "Saved the students"
+  end
 end
 
 def interactive_menu
