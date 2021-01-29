@@ -59,18 +59,18 @@ def input_students
   puts "Please enter the names of the students"
   puts "To finish, just hit return twice"
   # get the first name
-  name = gets.trim
+  name = STDIN.gets.trim
   # while the name is not empty, repeat this code
   while !name.empty? do
     puts "Which cohort does #{name} belong to?"
-    cohort = gets.trim.capitalize
+    cohort = STDIN.gets.trim.capitalize
     if cohort.empty? then cohort = "November" end
     puts "What does #{name} like to do for fun?"
-    hobby = gets.trim
+    hobby = STDIN.gets.trim
     puts "How tall is #{name}?"
-    tallness = gets.trim
+    tallness = STDIN.gets.trim
     puts "Would #{name} like to volunteer as a subject in evil experiments?"
-    mkultra = gets.trim
+    mkultra = STDIN.gets.trim
     mkultra = true
     # add the student hash to the array
     @students << {name: name, cohort: cohort.to_sym, hobby: hobby, tallness: tallness, mkultra: mkultra}
@@ -78,7 +78,7 @@ def input_students
     if @students.count != 1 then s = "s" end
     puts "Now we have #{@students.count} student#{s}"
     # get another name from the user
-    name = gets.trim
+    name = STDIN.gets.trim
   end
   # return the array of students
 end
@@ -132,6 +132,7 @@ def process(selection)
       exit
     else
       puts "I don't think that was one of the options..."
+      puts selection
   end
   puts "\n++++++++++++++++\n\n"
 end
@@ -142,8 +143,8 @@ def show_students
   print_footer()
 end
 
-def load_students
-  file = File.open("students.csv", "r")
+def load_students(filename = "students.csv")
+  file = File.open(filename, "r")
   keys = file.readline.chomp.split(",").map { |k| k.to_sym }
   i_cohort = keys.index(:cohort)
   file.readlines.each do |line|
@@ -154,7 +155,7 @@ def load_students
     @students << h
   end
   file.close
-  puts "Loaded students from students.csv"
+  puts "Loaded students from #{filename}"
 end
 
 
@@ -181,8 +182,22 @@ def interactive_menu
   loop do
     # show the menu options
     print_menu()
-    process(gets.chomp.delete "a-zA-Z ")
+    process(STDIN.gets.chomp.delete "a-zA-Z ")
   end
 end
 
+def try_load_students
+  filename = ARGV.first # first argument from the command line
+  return if filename.nil? # get out of the method if it isn't given
+  if File.exists?(filename) # if it exists
+    load_students(filename)
+     puts "Loaded #{@students.count} from #{filename}"
+  else # if it doesn't exist
+    puts "Sorry, #{filename} doesn't exist."
+    #exit # quit the program
+  end
+end
+
+# run the code
+try_load_students
 interactive_menu
