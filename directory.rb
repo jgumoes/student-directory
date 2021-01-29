@@ -22,20 +22,6 @@ class String
   end
 end
 
-# default list of students, to make testing some stuff less painfull
-$default_students = [{name: "Bob", cohort: :October, hobby: "hobbying along", 
-  tallness: "about this big", mkultra: "definitely not"},
-{name: "Freddy the Murder Enthusiast", cohort: :June, hobby: "murdering", 
-  tallness: "5 foot 7", mkultra: "nope"},
-{name: "Olaf", cohort: :Ylir, hobby: "pillaging villages and monastaries", 
-  tallness: "1 faomr", mkultra: "only if it pays well in mead and meat"},
-  {name: "Fidget Man", cohort: :November, hobby: "being uncomfortable", 
-    tallness: "man sized", mkultra: "strong no"},
-    {name: "Fidget Boy", cohort: :November, hobby: "whatever Fidget Man is doing", 
-      tallness: "boy sized", mkultra: "same as fidget man"},
-      {name: "Varg", cohort: :Ylir, hobby: "making bad music and terrible RPGs", 
-        tallness: "viking", mkultra: "it conflicts with his neo-pagan beliefs"}]
-
 @students = []
 
 def print_header
@@ -100,12 +86,32 @@ end
 def print_menu
   puts "1. Input the students"
   puts "2. Show the students"
+  puts "3. Save the students"
   puts "5. Add the defualt students"
   puts "9. Exit"
 end
 
 def add_default_students
-  $default_students.each { |s| @students << s }
+  # default list of students, to make testing some stuff less painfull
+  default_students = [{name: "Bob", cohort: :October, hobby: "hobbying along", 
+    tallness: "about this big", mkultra: "definitely not"},
+  {name: "Freddy the Murder Enthusiast", cohort: :June, hobby: "murdering", 
+    tallness: "5 foot 7", mkultra: "nope"},
+  {name: "Olaf", cohort: :Ylir, hobby: "pillaging villages and monastaries", 
+    tallness: "1 faomr", mkultra: "only if it pays well in mead and meat"},
+  {name: "Fidget Man", cohort: :November, hobby: "being uncomfortable", 
+    tallness: "man sized", mkultra: "strong no"},
+  {name: "Fidget Boy", cohort: :November, hobby: "whatever Fidget Man is doing", 
+    tallness: "boy sized", mkultra: "same as fidget man"},
+  {name: "Varg", cohort: :Ylir, hobby: "making bad music and terrible RPGs", 
+    tallness: "viking", mkultra: "it conflicts with his neo-pagan beliefs"}]
+  
+  default_students.each do |s|
+    if !@students.include?(s)
+      @students << s
+    end
+  end
+  puts "Added the default students"
 end
 
 def process(selection)
@@ -115,6 +121,8 @@ def process(selection)
       input_students
     when "2"
       print_cohort()
+    when "3"
+      save_students()
     when "5"
       add_default_students()
     when "9"
@@ -129,6 +137,18 @@ def show_students
   print_header()
   print_cohort()
   print_footer()
+end
+
+def save_students
+  # open the students file for writing
+  file = File.open("students.csv", "w")
+  @students.each do |student|
+    student_data = student.values # this is safe because hashes keep their values in the same order as inserted
+    csv_line = student_data.join(",")
+    file.puts csv_line
+  end
+  file.close
+  puts "Saved the students"
 end
 
 def interactive_menu
