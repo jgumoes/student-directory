@@ -23,31 +23,39 @@ class String
 end
 
 @students = []
+@keys = [:name,:cohort,:hobby,:tallness,:mkultra]
 
 def print_header
   puts "The students of Villains Academy"
   puts "-------------"
 end
 
+def mkultra_volunteer student
+  if student
+    return "is a willing particapent"
+  else
+    return "will not participate"
+  end
+end
+
 def print_cohort()
-  cohorts = @students.map { |s| s[:cohort] }
-  cohorts.each do |cohort|
-    puts "Students in the #{cohort.to_s.underline} cohort:"
-    i = 0
-    @students.each do |student|
-      if student[:cohort] == cohort
-        if student[:mkultra]
-          mkultra_volunteer = "is a willing particapent"
-        else
-          mkultra_volunteer = "will not participate"
+  if @students.empty?
+    puts "No students have been entered yet"
+  else
+    cohorts = @students.map { |s| s[:cohort] }.uniq
+    cohorts.each do |cohort|
+      puts "Students in the #{cohort.to_s.underline} cohort:"
+      i = 0
+      @students.each do |student|
+        if student[:cohort] == cohort
+          out = "#{i+1}. #{student[:name].underline} is #{student[:tallness].underline} tall, "
+          out += "does #{student[:hobby].underline} for fun, and #{mkultra_volunteer(student[:mkultra]).underline} in this faculties MKULTRA program\n"
+          puts out
+          i += 1
         end
-        out = "#{i+1}. #{student[:name].underline} is #{student[:tallness].underline} tall, "
-        out += "does #{student[:hobby].underline} for fun, and #{mkultra_volunteer.underline} in this faculties MKULTRA program\n"
-        puts out
-        i += 1
       end
+      puts "\n"
     end
-    puts "\n"
   end
 end
 
@@ -55,32 +63,71 @@ def print_footer()
   puts "Overall, we have #{@students.count} great students"
 end
 
-def input_students
-  puts "Please enter the names of the students"
-  puts "To finish, just hit return twice"
-  # get the first name
-  name = STDIN.gets.trim
-  # while the name is not empty, repeat this code
-  while !name.empty? do
+def gets
+  return STDIN.gets
+end
+
+def key_questions key, name="Subject"
+  case key
+  when :name
+    puts "Please enter the names of the students"
+    puts "To finish, just hit return"
+    return gets.trim
+  when :cohort
     puts "Which cohort does #{name} belong to?"
-    cohort = STDIN.gets.trim.capitalize
-    if cohort.empty? then cohort = "November" end
+    cohort = gets.trim.capitalize
+    if cohort.empty?
+      return :November
+    else
+      return cohort.to_sym
+    end
+  when :hobby
     puts "What does #{name} like to do for fun?"
-    hobby = STDIN.gets.trim
+    return gets.trim
+  when :tallness
     puts "How tall is #{name}?"
-    tallness = STDIN.gets.trim
+    return gets.trim
+  when :mkultra
     puts "Would #{name} like to volunteer as a subject in evil experiments?"
-    mkultra = STDIN.gets.trim
-    mkultra = true
-    # add the student hash to the array
-    @students << {name: name, cohort: cohort.to_sym, hobby: hobby, tallness: tallness, mkultra: mkultra}
-    s = ""
-    if @students.count != 1 then s = "s" end
-    puts "Now we have #{@students.count} student#{s}"
-    # get another name from the user
-    name = STDIN.gets.trim
+    mkultra = gets.trim
+    return true
   end
-  # return the array of students
+end
+
+def ask_for_input
+  # cycles through the contents of @keys, and asks the user
+  # for input for each key. assumes that the first key is
+  # always :name
+  name = key_questions(:name)
+  while !name.empty? do
+    values = [name]
+    @keys[1..-1].each do |key|
+      values.append(key_questions(key, name))
+    end
+    add_student_to_list(values)
+    name = key_questions(:name)
+  end
+end 
+
+def print_student_count
+  s = ""
+  if @students.count != 1 then s = "s" end
+  puts "Now we have #{@students.count} student#{s}"
+end
+
+def add_student_to_list(values)
+  # turns the list of values into a dictionary, then adds it to @students
+  h = {}
+  @keys.each_with_index { |k, i| h[k] = values[i]}
+  if !@students.include?(h)
+    @students << h
+  else
+    puts "Student Entry already exists"
+  end
+end
+
+def input_students
+  ask_for_input()
 end
 
 def print_menu
@@ -94,25 +141,18 @@ end
 
 def add_default_students
   # default list of students, to make testing some stuff less painfull
-  default_students = [{name: "Bob", cohort: :October, hobby: "hobbying along", 
-    tallness: "about this big", mkultra: "definitely not"},
-  {name: "Freddy the Murder Enthusiast", cohort: :June, hobby: "murdering", 
-    tallness: "5 foot 7", mkultra: "nope"},
-  {name: "Olaf", cohort: :Ylir, hobby: "pillaging villages and monastaries", 
-    tallness: "1 faomr", mkultra: "only if it pays well in mead and meat"},
-  {name: "Fidget Man", cohort: :November, hobby: "being uncomfortable", 
-    tallness: "man sized", mkultra: "strong no"},
-  {name: "Fidget Boy", cohort: :November, hobby: "whatever Fidget Man is doing", 
-    tallness: "boy sized", mkultra: "same as fidget man"},
-  {name: "Varg", cohort: :Ylir, hobby: "making bad music and terrible RPGs", 
-    tallness: "viking", mkultra: "it conflicts with his neo-pagan beliefs"}]
+  default_students = [["Bob", :October, "hobbying along", "about this big", "definitely not"],
+  ["Freddy the Murder Enthusiast", :June, "murdering", "5 foot 7", "nope"],
+  ["Olaf", :Ylir, "pillaging villages and monastaries", "1 faomr", "only if it pays well in mead and meat"],
+  ["Fidget Man", :November, "being uncomfortable", "man sized", "strong no"],
+  ["Fidget Boy", :November, "whatever Fidget Man is doing", "boy sized", "same as fidget man"],
+  ["Varg", :Ylir, "making bad music and terrible RPGs", "viking", "it conflicts with his neo-pagan beliefs"],
+  ["Ted Cruz", :August, "people-watching couples in parks and making cryptography puzzles", "not very tall as his spine doesn't provide enough support", "yes"]
+  ]
   
-  default_students.each do |s|
-    if !@students.include?(s)
-      @students << s
-    end
-  end
+  default_students.each { |s| add_student_to_list(s) }
   puts "Added the default students"
+  print_student_count()
 end
 
 def process(selection)
@@ -145,14 +185,12 @@ end
 
 def load_students(filename = "students.csv")
   file = File.open(filename, "r")
-  keys = file.readline.chomp.split(",").map { |k| k.to_sym }
-  i_cohort = keys.index(:cohort)
+  @keys = file.readline.chomp.split(",").map { |k| k.to_sym }
+  i_cohort = @keys.index(:cohort)
   file.readlines.each do |line|
-    line = line.chomp.split(",")
-    line[i_cohort] = line[i_cohort].to_sym
-    h = {}
-    keys.each_with_index { |k, i| h[k] = line[i]}
-    @students << h
+    values = line.chomp.split(",")
+    values[i_cohort] = values[i_cohort].to_sym
+    add_student_to_list(values)
   end
   file.close
   puts "Loaded students from #{filename}"
@@ -182,7 +220,7 @@ def interactive_menu
   loop do
     # show the menu options
     print_menu()
-    process(STDIN.gets.chomp.delete "a-zA-Z ")
+    process(gets.chomp.delete "a-zA-Z ")
   end
 end
 
