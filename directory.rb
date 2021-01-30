@@ -22,6 +22,7 @@ class String
   end
 end
 
+@filename = "students.csv"
 @students = []
 @keys = [:name,:cohort,:hobby,:tallness,:mkultra]
 
@@ -133,9 +134,10 @@ end
 def print_menu
   puts "1. Input the students"
   puts "2. Show the students"
-  puts "3. Save the students to students.csv"
-  puts "4. Load students from students.csv"
-  puts "5. Add the defualt students"
+  puts "3. Save the students to #{@filename}"
+  puts "4. Load students from #{@filename}"
+  puts "5. Change the file to save/load students from"
+  puts "7. Add the default students"
   puts "9. Exit"
 end
 
@@ -147,7 +149,8 @@ def add_default_students
   ["Fidget Man", :November, "being uncomfortable", "man sized", "strong no"],
   ["Fidget Boy", :November, "whatever Fidget Man is doing", "boy sized", "same as fidget man"],
   ["Varg", :Ylir, "making bad music and terrible RPGs", "viking", "it conflicts with his neo-pagan beliefs"],
-  ["Ted Cruz", :August, "people-watching couples in parks and making cryptography puzzles", "not very tall as his spine doesn't provide enough support", "yes"]
+  ["Ted Cruz", :August, "people-watching couples in parks and making cryptography puzzles", "not very tall as his spine doesn't provide enough support", "yes"],
+  ["Domminic Cummings", :March, "visiting castles and getting eye tests", "not as tall as his ego", "no, that's for the poor people to do"]
   ]
   
   default_students.each { |s| add_student_to_list(s) }
@@ -167,6 +170,8 @@ def process(selection)
     when "4"
       load_students()
     when "5"
+      change_filename()
+    when "7"
       add_default_students()
     when "9"
       exit
@@ -183,7 +188,7 @@ def show_students
   print_footer()
 end
 
-def load_students(filename = "students.csv")
+def load_students(filename = @filename)
   file = File.open(filename, "r")
   @keys = file.readline.chomp.split(",").map { |k| k.to_sym }
   i_cohort = @keys.index(:cohort)
@@ -202,7 +207,7 @@ def save_students
     puts "Their aren't any students to save"
   else
     # open the students file for writing
-    file = File.open("students.csv", "w")
+    file = File.open(@filename, "w")
     # save keys to first line of file. this makes it easier to scale up what
     # data is stored for each student
     file.puts @students[0].keys.map { |k| k.to_s }.join(",")
@@ -224,9 +229,21 @@ def interactive_menu
   end
 end
 
+def change_filename()
+  puts "Enter the file name that will handle saving/loading student infomation"
+  puts "Press enter to abort"
+  filename = gets.chomp
+  if filename != ""
+    @filename = filename
+    puts "File set to #{filename}"
+  else
+    puts "File not changed"
+  end
+end
+
 def try_load_students
   filename = ARGV.first # first argument from the command line
-  if filename.nil? then filename = "students.csv" end
+  if filename.nil? then filename = @filename end
   if File.exists?(filename) # if it exists
     load_students(filename)
      puts "Loaded #{@students.count} from #{filename}"
