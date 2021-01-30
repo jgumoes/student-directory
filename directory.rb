@@ -189,15 +189,15 @@ def show_students
 end
 
 def load_students(filename = @filename)
-  file = File.open(filename, "r")
-  @keys = file.readline.chomp.split(",").map { |k| k.to_sym }
-  i_cohort = @keys.index(:cohort)
-  file.readlines.each do |line|
-    values = line.chomp.split(",")
-    values[i_cohort] = values[i_cohort].to_sym
-    add_student_to_list(values)
+  File.open(filename, "r") do |file|
+    @keys = file.readline.chomp.split(",").map { |k| k.to_sym }
+    i_cohort = @keys.index(:cohort)
+    file.readlines.each do |line|
+      values = line.chomp.split(",")
+      values[i_cohort] = values[i_cohort].to_sym
+      add_student_to_list(values)
+    end
   end
-  file.close
   puts "Loaded students from #{filename}"
 end
 
@@ -207,16 +207,16 @@ def save_students
     puts "Their aren't any students to save"
   else
     # open the students file for writing
-    file = File.open(@filename, "w")
-    # save keys to first line of file. this makes it easier to scale up what
-    # data is stored for each student
-    file.puts @students[0].keys.map { |k| k.to_s }.join(",")
-    @students.each do |student|
-      student_data = student.values # this is safe because hashes keep their values in the same order as inserted
-      csv_line = student_data.join(",")
-      file.puts csv_line
+    File.open(@filename, "w") do |file|
+      # save keys to first line of file. this makes it easier to scale up what
+      # data is stored for each student
+      file.puts @students[0].keys.map { |k| k.to_s }.join(",")
+      @students.each do |student|
+        student_data = student.values # this is safe because hashes keep their values in the same order as inserted
+        csv_line = student_data.join(",")
+        file.puts csv_line
+      end
     end
-    file.close
     puts "Saved the students"
   end
 end
