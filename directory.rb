@@ -6,6 +6,8 @@ rescue => LoadError
   puts "rainbow not installed"
 end
 
+require "csv"
+
 class String
   def underline
     # if rainbow is imported, return underlined text. otherwise, return the same string
@@ -78,9 +80,9 @@ def key_questions key, name="Subject"
     puts "Which cohort does #{name} belong to?"
     cohort = gets.trim.capitalize
     if cohort.empty?
-      return :November
+      return "November"
     else
-      return cohort.to_sym
+      return cohort
     end
   when :hobby
     puts "What does #{name} like to do for fun?"
@@ -120,11 +122,7 @@ def add_student_to_list(values)
   # turns the list of values into a dictionary, then adds it to @students
   h = {}
   @keys.each_with_index { |k, i| h[k] = values[i]}
-  if !@students.include?(h)
-    @students << h
-  else
-    puts "Student Entry already exists"
-  end
+  add_hash_to_list(h)
 end
 
 def input_students
@@ -143,14 +141,14 @@ end
 
 def add_default_students
   # default list of students, to make testing some stuff less painfull
-  default_students = [["Bob", :October, "hobbying along", "about this big", "definitely not"],
-  ["Freddy the Murder Enthusiast", :June, "murdering", "5 foot 7", "nope"],
-  ["Olaf", :Ylir, "pillaging villages and monastaries", "1 faomr", "only if it pays well in mead and meat"],
-  ["Fidget Man", :November, "being uncomfortable", "man sized", "strong no"],
-  ["Fidget Boy", :November, "whatever Fidget Man is doing", "boy sized", "same as fidget man"],
-  ["Varg", :Ylir, "making bad music and terrible RPGs", "viking", "it conflicts with his neo-pagan beliefs"],
-  ["Ted Cruz", :August, "people-watching couples in parks and making cryptography puzzles", "not very tall as his spine doesn't provide enough support", "yes"],
-  ["Domminic Cummings", :March, "visiting castles and getting eye tests", "not as tall as his ego", "no, that's for the poor people to do"]
+  default_students = [["Bob", "October", "hobbying along", "about this big", "definitely not"],
+  ["Freddy the Murder Enthusiast", "June", "murdering", "5 foot 7", "nope"],
+  ["Olaf", "Ylir", "pillaging villages and monastaries", "1 faomr", "only if it pays well in mead and meat"],
+  ["Fidget Man", "November", "being uncomfortable", "man sized", "strong no"],
+  ["Fidget Boy", "November", "whatever Fidget Man is doing", "boy sized", "same as fidget man"],
+  ["Varg", "Ylir", "making bad music and terrible RPGs", "viking", "it conflicts with his neo-pagan beliefs"],
+  ["Ted Cruz", "August", "people-watching couples in parks and making cryptography puzzles", "not very tall as his spine doesn't provide enough support", "yes"],
+  ["Domminic Cummings", "March", "visiting castles and getting eye tests", "not as tall as his ego", "no, that's for the poor people to do"]
   ]
   
   default_students.each { |s| add_student_to_list(s) }
@@ -188,16 +186,17 @@ def show_students
   print_footer()
 end
 
-def load_students(filename = @filename)
-  File.open(filename, "r") do |file|
-    @keys = file.readline.chomp.split(",").map { |k| k.to_sym }
-    i_cohort = @keys.index(:cohort)
-    file.readlines.each do |line|
-      values = line.chomp.split(",")
-      values[i_cohort] = values[i_cohort].to_sym
-      add_student_to_list(values)
-    end
+def add_hash_to_list(hash)
+  if !@students.include?(hash)
+    @students << hash
   end
+end
+
+def load_students(filename = @filename)
+  symbol_converter = lambda { |header| header.to_sym }
+  data = CSV.parse(File.read(filename), headers: true, header_converters: symbol_converter)
+  data.each { |d| add_hash_to_list(d.to_h)}
+  @keys = @students[0].keys # hopefully this will force all student hashes to have the same order
   puts "Loaded students from #{filename}"
 end
 
@@ -206,16 +205,9 @@ def save_students
   if @students.length == 0
     puts "Their aren't any students to save"
   else
-    # open the students file for writing
-    File.open(@filename, "w") do |file|
-      # save keys to first line of file. this makes it easier to scale up what
-      # data is stored for each student
-      file.puts @students[0].keys.map { |k| k.to_s }.join(",")
-      @students.each do |student|
-        student_data = student.values # this is safe because hashes keep their values in the same order as inserted
-        csv_line = student_data.join(",")
-        file.puts csv_line
-      end
+    CSV.open(@filename, "w") do |csv|
+      csv << @keys
+      @students.each { |s| csv << s.values }
     end
     puts "Saved the students"
   end
